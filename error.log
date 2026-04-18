@@ -1,0 +1,18 @@
+🚀 Unimeet Backend running on http://localhost:5001
+/Users/sabasingh/Documents/fullstack_project/node_modules/jsonwebtoken/sign.js:111
+    return failure(new Error('secretOrPrivateKey must have a value'));
+                   ^
+
+Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/Users/sabasingh/Documents/fullstack_project/node_modules/jsonwebtoken/sign.js:111:20)
+    at generateToken (/Users/sabasingh/Documents/fullstack_project/utils/generateToken.js:4:14)
+    at registerUser (/Users/sabasingh/Documents/fullstack_project/controllers/authController.js:29:12)
+    at Layer.handle [as handle_request] (/Users/sabasingh/Documents/fullstack_project/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/sabasingh/Documents/fullstack_project/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/Users/sabasingh/Documents/fullstack_project/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/Users/sabasingh/Documents/fullstack_project/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/sabasingh/Documents/fullstack_project/node_modules/express/lib/router/index.js:284:15
+    at router.process_params (/Users/sabasingh/Documents/fullstack_project/node_modules/express/lib/router/index.js:346:12)
+    at next (/Users/sabasingh/Documents/fullstack_project/node_modules/express/lib/router/index.js:280:10)
+
+Node.js v25.6.1

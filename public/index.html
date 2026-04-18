@@ -1,0 +1,2480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unimeet – Faculty Appointment Management</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1e2530;
+            --border: #2a3340;
+            --accent: #4ade80;
+            --accent2: #22d3ee;
+            --accent3: #f59e0b;
+            --text: #e6edf3;
+            --muted: #7d8fa3;
+            --danger: #f87171;
+            --pending: #fbbf24;
+            --approved: #4ade80;
+            --rejected: #f87171;
+            --radius: 14px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── PAGES ── */
+        .page {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* ── LANDING PAGE ── */
+        #page-landing {
+            display: none;
+            background: var(--bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #page-landing.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .landing-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 70% 10%, rgba(74, 222, 128, 0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 10% 80%, rgba(34, 211, 238, 0.06) 0%, transparent 55%),
+                var(--bg);
+        }
+
+        /* Nav */
+        nav {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 60px;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            background: rgba(13, 17, 23, 0.7);
+        }
+
+        .logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--text);
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 100px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            color: var(--text);
+            border-color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #0d1117;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #86efac;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(74, 222, 128, 0.35);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #fca5a5;
+        }
+
+        .btn-sm {
+            padding: 7px 16px;
+            font-size: 0.8rem;
+        }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 110px 40px 80px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: var(--accent);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .hero-badge::before {
+            content: '●';
+            font-size: 0.5rem;
+        }
+
+        .hero h1 {
+            font-family: 'Fraunces', serif;
+            font-weight: 900;
+            font-size: clamp(3rem, 7vw, 6rem);
+            line-height: 1.05;
+            letter-spacing: -3px;
+            margin-bottom: 24px;
+            animation: fadeUp 0.6s 0.1s ease both;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--muted);
+            max-width: 520px;
+            line-height: 1.7;
+            margin-bottom: 44px;
+            animation: fadeUp 0.6s 0.2s ease both;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeUp 0.6s 0.3s ease both;
+        }
+
+        .hero-cta .btn {
+            font-size: 1rem;
+            padding: 13px 28px;
+        }
+
+        /* Stats */
+        .stats {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            padding: 0 60px 80px;
+        }
+
+        .stat {
+            flex: 1;
+            max-width: 220px;
+            text-align: center;
+            padding: 30px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            transition: border-color 0.2s;
+        }
+
+        .stat:first-child {
+            border-radius: var(--radius) 0 0 var(--radius);
+        }
+
+        .stat:last-child {
+            border-radius: 0 var(--radius) var(--radius) 0;
+            border-left: none;
+        }
+
+        .stat:not(:first-child):not(:last-child) {
+            border-left: none;
+        }
+
+        .stat:hover {
+            border-color: var(--accent);
+        }
+
+        .stat-num {
+            font-family: 'Fraunces', serif;
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: var(--accent);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* Features */
+        .features {
+            position: relative;
+            z-index: 1;
+            padding: 80px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent2);
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: 'Fraunces', serif;
+            font-size: 2.6rem;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            margin-bottom: 50px;
+            line-height: 1.1;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 30px;
+            transition: all 0.25s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(74, 222, 128, 0.1);
+        }
+
+        .feature-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: rgba(74, 222, 128, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+        }
+
+        .feature-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.875rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ── AUTH PAGE ── */
+        #page-auth {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse 60% 60% at 30% 50%, rgba(34, 211, 238, 0.05) 0%, transparent 60%),
+                var(--bg);
+        }
+
+        #page-auth.active {
+            display: flex;
+        }
+
+        .auth-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px 44px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow);
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .auth-logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .auth-box h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .auth-box p.sub {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .role-tabs {
+            display: flex;
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 28px;
+            gap: 4px;
+        }
+
+        .role-tab {
+            flex: 1;
+            padding: 9px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .role-tab.active {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            color: var(--muted);
+            font-weight: 500;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .form-group select option {
+            background: var(--surface2);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .auth-footer a {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* ── DASHBOARD LAYOUT ── */
+        #page-dashboard {
+            display: none;
+        }
+
+        #page-dashboard.active {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 24px 24px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        .sidebar-role {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.18s;
+            margin-bottom: 2px;
+        }
+
+        .nav-item:hover {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: rgba(74, 222, 128, 0.12);
+            color: var(--accent);
+        }
+
+        .nav-item .icon {
+            font-size: 1.1rem;
+            width: 22px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 16px 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #0d1117;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .user-dept {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--bg);
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 36px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(13, 17, 23, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .topbar h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .notif-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .notif-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 0.65rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .content-area {
+            padding: 32px 36px;
+        }
+
+        .section-hidden {
+            display: none;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        .card-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            transition: border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+        }
+
+        .stat-card .s-label {
+            font-size: 0.78rem;
+            color: var(--muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .s-num {
+            font-family: 'Fraunces', serif;
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 6px 0 2px;
+        }
+
+        .stat-card .s-sub {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .green {
+            color: var(--accent);
+        }
+
+        .cyan {
+            color: var(--accent2);
+        }
+
+        .amber {
+            color: var(--accent3);
+        }
+
+        .red {
+            color: var(--danger);
+        }
+
+        /* Tables */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(42, 51, 64, 0.6);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--pending);
+        }
+
+        .badge-approved {
+            background: rgba(74, 222, 128, 0.12);
+            color: var(--approved);
+        }
+
+        .badge-rejected {
+            background: rgba(248, 113, 113, 0.12);
+            color: var(--rejected);
+        }
+
+        .badge-cancelled {
+            background: rgba(125, 143, 163, 0.15);
+            color: var(--muted);
+        }
+
+        /* Faculty grid */
+        .faculty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        .faculty-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            transition: all 0.22s;
+            cursor: pointer;
+        }
+
+        .faculty-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(74, 222, 128, 0.08);
+        }
+
+        .faculty-card .fc-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.3), rgba(34, 211, 238, 0.3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 14px;
+        }
+
+        .faculty-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .faculty-card .dept {
+            font-size: 0.8rem;
+            color: var(--accent2);
+            margin-bottom: 4px;
+        }
+
+        .faculty-card .desig {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+
+        .faculty-card .slots-available {
+            font-size: 0.78rem;
+            color: var(--accent);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Slot cards */
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .slot-card {
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.18s;
+            text-align: center;
+        }
+
+        .slot-card:hover,
+        .slot-card.selected {
+            border-color: var(--accent);
+            background: rgba(74, 222, 128, 0.06);
+        }
+
+        .slot-card.selected {
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+        }
+
+        .slot-card .slot-time {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .slot-card .slot-date {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: var(--shadow);
+            animation: popIn 0.3s ease both;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .modal .sub {
+            color: var(--muted);
+            font-size: 0.88rem;
+            margin-bottom: 28px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+
+        /* Notification items */
+        .notif-item {
+            display: flex;
+            gap: 14px;
+            padding: 16px;
+            border-radius: 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .notif-item.unread {
+            border-left: 3px solid var(--accent);
+        }
+
+        .notif-item .notif-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            background: rgba(74, 222, 128, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notif-item h4 {
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .notif-item p {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .notif-item .time {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        /* Filters bar */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .filter-select {
+            padding: 10px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Slot management */
+        .slot-manage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .slot-manage-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            transition: border-color 0.2s;
+        }
+
+        .slot-manage-card:hover {
+            border-color: var(--accent2);
+        }
+
+        .slot-manage-card .smc-time {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .slot-manage-card .smc-date {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .slot-manage-card .smc-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp 0.5s ease both;
+        }
+
+        /* Utility */
+        .flex-between {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+
+        .mb-16 {
+            margin-bottom: 16px;
+        }
+
+        .mb-24 {
+            margin-bottom: 24px;
+        }
+
+        .text-muted {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .text-sm {
+            font-size: 0.82rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .full-width {
+            grid-column: 1/-1;
+        }
+
+        /* Profile */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #0d1117;
+            flex-shrink: 0;
+        }
+
+        .profile-header h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .profile-header p {
+            color: var(--muted);
+            font-size: 0.88rem;
+            margin-top: 4px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* Appointment detail */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row .label {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .detail-row .value {
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                padding: 18px 20px;
+            }
+
+            .hero {
+                padding: 80px 20px 50px;
+            }
+
+            .stats {
+                padding: 0 20px 50px;
+                flex-wrap: wrap;
+            }
+
+            .features {
+                padding: 50px 20px;
+            }
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+
+            .topbar {
+                padding: 16px 20px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════ -->
+    <div id="page-landing" class="page active">
+        <div class="landing-bg"></div>
+
+        <nav>
+            <div class="logo">Uni<span>meet</span></div>
+            <div class="nav-links">
+                <button class="btn btn-ghost" onclick="showAuth('login')">Sign In</button>
+                <button class="btn btn-primary" onclick="showAuth('register')">Get Started</button>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-badge">Faculty Appointment Management System</div>
+            <h1>Schedule Smarter,<br>Meet <em>Better</em></h1>
+            <p>Unimeet connects students and faculty through a seamless appointment platform — no more waiting, no more
+                confusion.</p>
+            <div class="hero-cta">
+                <button class="btn btn-primary" onclick="showAuth('register')">Book Appointment →</button>
+                <button class="btn btn-ghost" onclick="showAuth('login')">Faculty Login</button>
+            </div>
+        </section>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-num">1,200+</span>
+                <div class="stat-label">Students Registered</div>
+            </div>
+            <div class="stat">
+                <span class="stat-num">180+</span>
+                <div class="stat-label">Faculty Members</div>
+            </div>
+            <div class="stat">
+                <span class="stat-num">4,800+</span>
+                <div class="stat-label">Appointments Booked</div>
+            </div>
+            <div class="stat">
+                <span class="stat-num">98%</span>
+                <div class="stat-label">Satisfaction Rate</div>
+            </div>
+        </div>
+
+        <section class="features">
+            <div class="section-label">Why Unimeet</div>
+            <div class="section-title">Everything you need<br>to manage meetings</div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🗓️</div>
+                    <h3>Smart Scheduling</h3>
+                    <p>View real-time availability and book instantly without double-booking conflicts.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Instant Notifications</h3>
+                    <p>Get alerted for booking confirmations, reminders, approvals, and cancellations.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✅</div>
+                    <h3>Approval Workflow</h3>
+                    <p>Faculty can approve, reject, or reschedule — students are notified automatically.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Analytics & Reports</h3>
+                    <p>Track appointment frequency, faculty workload, and student interaction stats.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>Role-Based Access</h3>
+                    <p>Separate secure dashboards for students, faculty, and administrators.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Appointment History</h3>
+                    <p>Complete records of past meetings with purpose, status, and timestamps.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ══════════════════════════════════════
+     AUTH PAGE
+══════════════════════════════════════ -->
+    <div id="page-auth" class="page">
+        <div class="auth-box">
+            <div class="auth-logo">Unimeet</div>
+            <h2 id="auth-title">Welcome back</h2>
+            <p class="sub" id="auth-sub">Sign in to your account to continue</p>
+
+            <div class="role-tabs" id="role-tabs">
+                <div class="role-tab active" onclick="setRole('student',this)">Student</div>
+                <div class="role-tab" onclick="setRole('faculty',this)">Faculty</div>
+                <div class="role-tab" onclick="setRole('admin',this)">Admin</div>
+            </div>
+
+            <div id="login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" placeholder="your@email.com" id="login-email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" placeholder="Enter password" id="login-pwd">
+                </div>
+                <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px"
+                    onclick="doLogin()">Sign In →</button>
+                <div class="auth-footer">
+                    Don't have an account? <a onclick="toggleAuth()">Register here</a>
+                </div>
+            </div>
+
+            <div id="register-form" style="display:none">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" placeholder="Your full name" id="reg-name">
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <input type="text" placeholder="e.g. Computer Science" id="reg-dept">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Email Address</label>
+                        <input type="email" placeholder="your@email.com" id="reg-email">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" placeholder="Create password" id="reg-pwd">
+                    </div>
+                    <div class="form-group" id="phone-group">
+                        <label>Phone No.</label>
+                        <input type="text" placeholder="+91 XXXXX XXXXX" id="reg-phone">
+                    </div>
+                    <div class="form-group full-width" id="desig-group" style="display:none">
+                        <label>Designation</label>
+                        <input type="text" placeholder="e.g. Associate Professor" id="reg-desig">
+                    </div>
+                </div>
+                <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;margin-top:8px"
+                    onclick="doRegister()">Create Account →</button>
+                <div class="auth-footer">
+                    Already have an account? <a onclick="toggleAuth()">Sign in</a>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;text-align:center">
+                <a class="text-muted" style="cursor:pointer;font-size:0.8rem" onclick="goToLanding()">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+     DASHBOARD PAGE
+══════════════════════════════════════ -->
+    <div id="page-dashboard" class="page">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Unimeet</div>
+                <div class="sidebar-role" id="sidebar-role-label">Student Portal</div>
+            </div>
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <!-- injected by JS -->
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar" id="sb-avatar">R</div>
+                    <div>
+                        <div class="user-name" id="sb-name">Ravi Kumar</div>
+                        <div class="user-dept" id="sb-dept">Computer Science</div>
+                    </div>
+                </div>
+                <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="logout()">Sign
+                    Out</button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="topbar">
+                <h1 id="topbar-title">Dashboard</h1>
+                <div class="topbar-actions">
+                    <div class="notif-btn" onclick="showSection('notifications')">
+                        🔔 <span class="notif-badge" id="notif-badge">3</span>
+                    </div>
+                    <div class="avatar" id="top-avatar" style="cursor:pointer" onclick="showSection('profile')">R</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+
+                <!-- ── STUDENT: Overview ── -->
+                <div id="sec-overview" class="section-hidden">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="s-label">Total Bookings</div>
+                            <div class="s-num green">12</div>
+                            <div class="s-sub">All time</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="s-label">Pending</div>
+                            <div class="s-num amber">2</div>
+                            <div class="s-sub">Awaiting approval</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="s-label">Approved</div>
+                            <div class="s-num green">8</div>
+                            <div class="s-sub">Confirmed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="s-label">Completed</div>
+                            <div class="s-num cyan">6</div>
+                            <div class="s-sub">Past meetings</div>
+                        </div>
+                    </div>
+                    <div class="card mb-24">
+                        <div class="card-title">Upcoming Appointments <button class="btn btn-primary btn-sm"
+                                onclick="showSection('book')">+ Book New</button></div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Faculty</th>
+                                        <th>Department</th>
+                                        <th>Date & Time</th>
+                                        <th>Purpose</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Dr. Sharma</strong></td>
+                                        <td>Computer Science</td>
+                                        <td>Apr 20, 2026 · 10:00 AM</td>
+                                        <td>Project Discussion</td>
+                                        <td><span class="badge badge-approved">✓ Approved</span></td>
+                                        <td><button class="btn btn-ghost btn-sm" onclick="viewAppt('1')">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Dr. Nair</strong></td>
+                                        <td>Mathematics</td>
+                                        <td>Apr 22, 2026 · 2:00 PM</td>
+                                        <td>Attendance Issue</td>
+                                        <td><span class="badge badge-pending">⏳ Pending</span></td>
+                                        <td><button class="btn btn-ghost btn-sm" onclick="viewAppt('2')">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Quick Actions</div>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap">
+                            <button class="btn btn-outline" onclick="showSection('book')">📅 Book Appointment</button>
+                            <button class="btn btn-outline" onclick="showSection('history')">📋 View History</button>
+                            <button class="btn btn-outline" onclick="showSection('faculty')">👩‍🏫 Browse
+                                Faculty</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── STUDENT: Browse Faculty ── -->
+                <div id="sec-faculty" class="section-hidden">
+                    <div class="filter-bar">
+                        <input class="search-input" placeholder="Search faculty by name..." id="faculty-search"
+                            oninput="filterFaculty()">
+                        <select class="filter-select" id="dept-filter" onchange="filterFaculty()">
+                            <option value="">All Departments</option>
+                            <option>Computer Science</option>
+                            <option>Mathematics</option>
+                            <option>Physics</option>
+                            <option>Electronics</option>
+                        </select>
+                    </div>
+                    <div class="faculty-grid" id="faculty-grid">
+                        <!-- generated by JS -->
+                    </div>
+                </div>
+
+                <!-- ── STUDENT: Book Appointment ── -->
+                <div id="sec-book" class="section-hidden">
+                    <div class="card" style="max-width:600px">
+                        <div class="card-title">Book an Appointment</div>
+                        <div class="form-group">
+                            <label>Select Faculty</label>
+                            <select id="book-faculty">
+                                <option>Dr. Sharma — Computer Science</option>
+                                <option>Dr. Nair — Mathematics</option>
+                                <option>Prof. Reddy — Electronics</option>
+                                <option>Dr. Meera — Physics</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Date</label>
+                            <input type="date" id="book-date">
+                        </div>
+                        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px">Available time slots</p>
+                        <div class="slots-grid mb-24" id="slot-picker">
+                            <div class="slot-card" onclick="selectSlot(this)">
+                                <div class="slot-time">9:00 AM</div>
+                                <div class="slot-date">Available</div>
+                            </div>
+                            <div class="slot-card" onclick="selectSlot(this)">
+                                <div class="slot-time">10:00 AM</div>
+                                <div class="slot-date">Available</div>
+                            </div>
+                            <div class="slot-card" onclick="selectSlot(this)">
+                                <div class="slot-time">11:00 AM</div>
+                                <div class="slot-date">Available</div>
+                            </div>
+                            <div class="slot-card" onclick="selectSlot(this)">
+                                <div class="slot-time">2:00 PM</div>
+                                <div class="slot-date">Available</div>
+                            </div>
+                            <div class="slot-card" onclick="selectSlot(this)">
+                                <div class="slot-time">3:00 PM</div>
+                                <div class="slot-date">Available</div>
+                            </div>
+                            <div class="slot-card" onclick="selectSlot(this)">
+                                <div class="slot-time">4:00 PM</div>
+                                <div class="slot-date">Available</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Purpose of Meeting</label>
+                            <select id="book-purpose">
+                                <option>Project Discussion</option>
+                                <option>Attendance Issue</option>
+                                <option>Career Guidance</option>
+                                <option>Personal Mentoring</option>
+                                <option>Academic Guidance</option>
+                                <option>Exam Related</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Additional Notes (optional)</label>
+                            <textarea rows="3" placeholder="Any specific details for the faculty..."
+                                id="book-notes"></textarea>
+                        </div>
+                        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px"
+                            onclick="submitBooking()">Confirm Booking →</button>
+                    </div>
+                </div>
+
+                <!-- ── STUDENT: Appointment History ── -->
+                <div id="sec-history" class="section-hidden">
+                    <div class="filter-bar">
+                        <input class="search-input" placeholder="Search appointments...">
+                        <select class="filter-select">
+                            <option value="">All Status</option>
+                            <option>Approved</option>
+                            <option>Pending</option>
+                            <option>Rejected</option>
+                            <option>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="card">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Faculty</th>
+                                        <th>Date & Time</th>
+                                        <th>Purpose</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Dr. Sharma</strong></td>
+                                        <td>Apr 15, 2026 · 10:00 AM</td>
+                                        <td>Project Discussion</td>
+                                        <td><span class="badge badge-approved">✓ Completed</span></td>
+                                        <td><button class="btn btn-ghost btn-sm" onclick="viewAppt('3')">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Dr. Meera</strong></td>
+                                        <td>Apr 10, 2026 · 3:00 PM</td>
+                                        <td>Career Guidance</td>
+                                        <td><span class="badge badge-approved">✓ Completed</span></td>
+                                        <td><button class="btn btn-ghost btn-sm" onclick="viewAppt('4')">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Prof. Reddy</strong></td>
+                                        <td>Apr 5, 2026 · 11:00 AM</td>
+                                        <td>Attendance Issue</td>
+                                        <td><span class="badge badge-rejected">✗ Rejected</span></td>
+                                        <td><button class="btn btn-ghost btn-sm" onclick="viewAppt('5')">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Dr. Nair</strong></td>
+                                        <td>Mar 28, 2026 · 2:00 PM</td>
+                                        <td>Exam Related</td>
+                                        <td><span class="badge badge-cancelled">Cancelled</span></td>
+                                        <td><button class="btn btn-ghost btn-sm" onclick="viewAppt('6')">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── FACULTY: Dashboard ── -->
+                <div id="sec-faculty-dash" class="section-hidden">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="s-label">Total Requests</div>
+                            <div class="s-num green">24</div>
+                            <div class="s-sub">This month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="s-label">Pending</div>
+                            <div class="s-num amber">5</div>
+                            <div class="s-sub">Need review</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="s-label">Approved</div>
+                            <div class="s-num green">16</div>
+                            <div class="s-sub">Confirmed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="s-label">Slots Available</div>
+                            <div class="s-num cyan">8</div>
+                            <div class="s-sub">Open for booking</div>
+                        </div>
+                    </div>
+                    <div class="card mb-24">
+                        <div class="card-title">Pending Requests <span class="badge badge-pending">5 new</span></div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Date & Time</th>
+                                        <th>Purpose</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Ravi Kumar</strong><br><span class="text-muted">CSE — Final
+                                                Year</span></td>
+                                        <td>Apr 20, 2026 · 10:00 AM</td>
+                                        <td>Project Discussion</td>
+                                        <td><button class="btn btn-primary btn-sm"
+                                                onclick="approveReject('Ravi Kumar', true)"
+                                                style="margin-right:6px">Approve</button><button
+                                                class="btn btn-danger btn-sm"
+                                                onclick="approveReject('Ravi Kumar', false)">Reject</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Priya Singh</strong><br><span class="text-muted">CSE — 3rd
+                                                Year</span></td>
+                                        <td>Apr 21, 2026 · 11:00 AM</td>
+                                        <td>Career Guidance</td>
+                                        <td><button class="btn btn-primary btn-sm"
+                                                onclick="approveReject('Priya Singh', true)"
+                                                style="margin-right:6px">Approve</button><button
+                                                class="btn btn-danger btn-sm"
+                                                onclick="approveReject('Priya Singh', false)">Reject</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Ankit Patel</strong><br><span class="text-muted">CSE — 2nd
+                                                Year</span></td>
+                                        <td>Apr 22, 2026 · 2:00 PM</td>
+                                        <td>Attendance Issue</td>
+                                        <td><button class="btn btn-primary btn-sm"
+                                                onclick="approveReject('Ankit Patel', true)"
+                                                style="margin-right:6px">Approve</button><button
+                                                class="btn btn-danger btn-sm"
+                                                onclick="approveReject('Ankit Patel', false)">Reject</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── FACULTY: Slot Management ── -->
+                <div id="sec-slots" class="section-hidden">
+                    <div class="card mb-24">
+                        <div class="card-title">My Time Slots <button class="btn btn-primary btn-sm"
+                                onclick="openAddSlot()">+ Add Slot</button></div>
+                        <div class="slot-manage-grid" id="slots-list">
+                            <div class="slot-manage-card">
+                                <div class="smc-time">9:00 AM – 10:00 AM</div>
+                                <div class="smc-date">Mon, Apr 20, 2026</div>
+                                <div style="margin-bottom:12px"><span class="badge badge-approved">Available</span>
+                                </div>
+                                <div class="smc-actions"><button class="btn btn-ghost btn-sm">Edit</button><button
+                                        class="btn btn-danger btn-sm" onclick="deleteSlot(this)">Delete</button></div>
+                            </div>
+                            <div class="slot-manage-card">
+                                <div class="smc-time">10:00 AM – 11:00 AM</div>
+                                <div class="smc-date">Mon, Apr 20, 2026</div>
+                                <div style="margin-bottom:12px"><span class="badge badge-pending">Booked</span></div>
+                                <div class="smc-actions"><button class="btn btn-ghost btn-sm">Edit</button><button
+                                        class="btn btn-danger btn-sm" onclick="deleteSlot(this)">Delete</button></div>
+                            </div>
+                            <div class="slot-manage-card">
+                                <div class="smc-time">2:00 PM – 3:00 PM</div>
+                                <div class="smc-date">Tue, Apr 21, 2026</div>
+                                <div style="margin-bottom:12px"><span class="badge badge-approved">Available</span>
+                                </div>
+                                <div class="smc-actions"><button class="btn btn-ghost btn-sm">Edit</button><button
+                                        class="btn btn-danger btn-sm" onclick="deleteSlot(this)">Delete</button></div>
+                            </div>
+                            <div class="slot-manage-card">
+                                <div class="smc-time">3:00 PM – 4:00 PM</div>
+                                <div class="smc-date">Tue, Apr 21, 2026</div>
+                                <div style="margin-bottom:12px"><span class="badge badge-approved">Available</span>
+                                </div>
+                                <div class="smc-actions"><button class="btn btn-ghost btn-sm">Edit</button><button
+                                        class="btn btn-danger btn-sm" onclick="deleteSlot(this)">Delete</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── ADMIN: Dashboard ── -->
+                <div id="sec-admin-dash" class="section-hidden">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="s-label">Total Students</div>
+                            <div class="s-num green">1,248</div>
+                            <div class="s-sub">Registered</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="s-label">Faculty Members</div>
+                            <div class="s-num cyan">184</div>
+                            <div class="s-sub">Active</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="s-label">Appointments</div>
+                            <div class="s-num amber">4,832</div>
+                            <div class="s-sub">All time</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="s-label">Today's Meetings</div>
+                            <div class="s-num green">28</div>
+                            <div class="s-sub">Scheduled today</div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-title">Department Overview</div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Department</th>
+                                        <th>Faculty</th>
+                                        <th>Appts</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Computer Science</td>
+                                        <td>42</td>
+                                        <td>1,204</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mathematics</td>
+                                        <td>28</td>
+                                        <td>876</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Electronics</td>
+                                        <td>35</td>
+                                        <td>952</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Physics</td>
+                                        <td>24</td>
+                                        <td>680</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Management</td>
+                                        <td>30</td>
+                                        <td>740</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">Recent Activity</div>
+                            <div class="notif-item unread">
+                                <div class="notif-icon">📅</div>
+                                <div>
+                                    <h4>New appointment booked</h4>
+                                    <p>Ravi Kumar → Dr. Sharma</p>
+                                    <div class="time">2 min ago</div>
+                                </div>
+                            </div>
+                            <div class="notif-item">
+                                <div class="notif-icon">✅</div>
+                                <div>
+                                    <h4>Appointment approved</h4>
+                                    <p>Dr. Nair approved Priya Singh</p>
+                                    <div class="time">15 min ago</div>
+                                </div>
+                            </div>
+                            <div class="notif-item">
+                                <div class="notif-icon">👤</div>
+                                <div>
+                                    <h4>New faculty registered</h4>
+                                    <p>Prof. Suresh joined Electronics dept.</p>
+                                    <div class="time">1 hr ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── ADMIN: Manage Users ── -->
+                <div id="sec-users" class="section-hidden">
+                    <div class="filter-bar">
+                        <input class="search-input" placeholder="Search users...">
+                        <select class="filter-select">
+                            <option>All Roles</option>
+                            <option>Student</option>
+                            <option>Faculty</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>All Departments</option>
+                            <option>Computer Science</option>
+                            <option>Mathematics</option>
+                            <option>Physics</option>
+                        </select>
+                    </div>
+                    <div class="card">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Department</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Ravi Kumar</strong></td>
+                                        <td>ravi@student.edu</td>
+                                        <td><span class="badge badge-pending">Student</span></td>
+                                        <td>Computer Science</td>
+                                        <td><span class="badge badge-approved">Active</span></td>
+                                        <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Dr. Sharma</strong></td>
+                                        <td>sharma@univ.edu</td>
+                                        <td><span class="badge badge-approved">Faculty</span></td>
+                                        <td>Computer Science</td>
+                                        <td><span class="badge badge-approved">Active</span></td>
+                                        <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Priya Singh</strong></td>
+                                        <td>priya@student.edu</td>
+                                        <td><span class="badge badge-pending">Student</span></td>
+                                        <td>Mathematics</td>
+                                        <td><span class="badge badge-approved">Active</span></td>
+                                        <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Prof. Reddy</strong></td>
+                                        <td>reddy@univ.edu</td>
+                                        <td><span class="badge badge-approved">Faculty</span></td>
+                                        <td>Electronics</td>
+                                        <td><span class="badge badge-cancelled">Inactive</span></td>
+                                        <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── NOTIFICATIONS ── -->
+                <div id="sec-notifications" class="section-hidden">
+                    <div class="notif-item unread">
+                        <div class="notif-icon">✅</div>
+                        <div>
+                            <h4>Appointment Approved</h4>
+                            <p>Dr. Sharma confirmed your appointment on Apr 20, 10:00 AM</p>
+                            <div class="time">10 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="notif-item unread">
+                        <div class="notif-icon">🔔</div>
+                        <div>
+                            <h4>Reminder</h4>
+                            <p>You have an appointment with Dr. Sharma tomorrow at 10:00 AM</p>
+                            <div class="time">1 hour ago</div>
+                        </div>
+                    </div>
+                    <div class="notif-item unread">
+                        <div class="notif-icon">📅</div>
+                        <div>
+                            <h4>Booking Received</h4>
+                            <p>Your appointment request with Dr. Nair has been submitted</p>
+                            <div class="time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="notif-item">
+                        <div class="notif-icon">✗</div>
+                        <div>
+                            <h4>Appointment Rejected</h4>
+                            <p>Prof. Reddy couldn't accommodate your Apr 5 request</p>
+                            <div class="time">Apr 5, 2026</div>
+                        </div>
+                    </div>
+                    <div class="notif-item">
+                        <div class="notif-icon">📋</div>
+                        <div>
+                            <h4>Meeting Completed</h4>
+                            <p>Appointment with Dr. Meera has been marked as completed</p>
+                            <div class="time">Apr 10, 2026</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── PROFILE ── -->
+                <div id="sec-profile" class="section-hidden">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profile-avatar-big">R</div>
+                        <div>
+                            <h2 id="profile-name">Ravi Kumar</h2>
+                            <p id="profile-info">Computer Science · Student</p>
+                            <p style="color:var(--muted);font-size:0.82rem;margin-top:4px" id="profile-email">
+                                ravi@student.edu</p>
+                        </div>
+                        <button class="btn btn-outline btn-sm" style="margin-left:auto">Edit Profile</button>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-title">Personal Information</div>
+                            <div class="detail-row"><span class="label">Full Name</span><span class="value"
+                                    id="pf-name">Ravi Kumar</span></div>
+                            <div class="detail-row"><span class="label">Email</span><span class="value"
+                                    id="pf-email">ravi@student.edu</span></div>
+                            <div class="detail-row"><span class="label">Department</span><span class="value"
+                                    id="pf-dept">Computer Science</span></div>
+                            <div class="detail-row"><span class="label">Role</span><span class="value"
+                                    id="pf-role">Student</span></div>
+                            <div class="detail-row"><span class="label">Phone</span><span class="value"
+                                    id="pf-phone">+91 98765 43210</span></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">Appointment Summary</div>
+                            <div class="detail-row"><span class="label">Total Booked</span><span
+                                    class="value green">12</span></div>
+                            <div class="detail-row"><span class="label">Completed</span><span
+                                    class="value cyan">6</span></div>
+                            <div class="detail-row"><span class="label">Pending</span><span class="value amber">2</span>
+                            </div>
+                            <div class="detail-row"><span class="label">Rejected</span><span class="value red">1</span>
+                            </div>
+                            <div class="detail-row"><span class="label">Cancelled</span><span class="value">1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /content-area -->
+        </div><!-- /main-content -->
+    </div><!-- /page-dashboard -->
+
+    <!-- ══════════════════════════════════════
+     MODALS
+══════════════════════════════════════ -->
+    <!-- Appointment Detail Modal -->
+    <div class="modal-overlay" id="modal-appt">
+        <div class="modal">
+            <h2>Appointment Details</h2>
+            <p class="sub">Complete information about this booking</p>
+            <div class="detail-row"><span class="label">Faculty</span><span class="value">Dr. Sharma</span></div>
+            <div class="detail-row"><span class="label">Department</span><span class="value">Computer Science</span>
+            </div>
+            <div class="detail-row"><span class="label">Date</span><span class="value">April 20, 2026</span></div>
+            <div class="detail-row"><span class="label">Time</span><span class="value">10:00 AM – 11:00 AM</span></div>
+            <div class="detail-row"><span class="label">Purpose</span><span class="value">Project Discussion</span>
+            </div>
+            <div class="detail-row"><span class="label">Status</span><span class="value"><span
+                        class="badge badge-approved">✓ Approved</span></span></div>
+            <div class="detail-row"><span class="label">Booked On</span><span class="value">April 16, 2026</span></div>
+            <div class="modal-actions">
+                <button class="btn btn-danger btn-sm" onclick="closeModal('modal-appt')">Cancel Appointment</button>
+                <button class="btn btn-primary btn-sm" onclick="closeModal('modal-appt')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Slot Modal -->
+    <div class="modal-overlay" id="modal-slot">
+        <div class="modal">
+            <h2>Add Time Slot</h2>
+            <p class="sub">Create a new available appointment slot</p>
+            <div class="form-group"><label>Date</label><input type="date" id="slot-date"></div>
+            <div class="grid-2">
+                <div class="form-group"><label>Start Time</label><input type="time" id="slot-start"></div>
+                <div class="form-group"><label>End Time</label><input type="time" id="slot-end"></div>
+            </div>
+            <div class="form-group">
+                <label>Repeat</label>
+                <select>
+                    <option>No Repeat</option>
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeModal('modal-slot')">Cancel</button>
+                <button class="btn btn-primary" onclick="addSlot()">Add Slot</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Success Modal -->
+    <div class="modal-overlay" id="modal-success">
+        <div class="modal" style="text-align:center">
+            <div style="font-size:3.5rem;margin-bottom:16px">🎉</div>
+            <h2>Booking Submitted!</h2>
+            <p class="sub" style="text-align:center">Your appointment request has been sent to the faculty. You'll
+                receive a notification once it's reviewed.</p>
+            <div style="background:var(--surface2);border-radius:12px;padding:20px;margin:20px 0;text-align:left">
+                <div class="detail-row"><span class="label">Faculty</span><span class="value" id="success-faculty">Dr.
+                        Sharma</span></div>
+                <div class="detail-row"><span class="label">Time Slot</span><span class="value" id="success-slot">10:00
+                        AM</span></div>
+                <div class="detail-row"><span class="label">Purpose</span><span class="value"
+                        id="success-purpose">Project Discussion</span></div>
+                <div class="detail-row"><span class="label">Status</span><span class="value"><span
+                            class="badge badge-pending">⏳ Pending</span></span></div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center"
+                onclick="closeModal('modal-success');showSection('history')">View My Appointments</button>
+        </div>
+    </div>
+
+    <!-- Faculty Detail Modal -->
+    <div class="modal-overlay" id="modal-faculty">
+        <div class="modal">
+            <div style="display:flex;align-items:center;gap:18px;margin-bottom:24px">
+                <div
+                    style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,rgba(74,222,128,0.3),rgba(34,211,238,0.3));display:flex;align-items:center;justify-content:center;font-size:1.8rem">
+                    👩‍🏫</div>
+                <div>
+                    <h2 id="fmodal-name" style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:900">Dr.
+                        Sharma</h2>
+                    <p id="fmodal-dept" style="color:var(--accent2);font-size:0.85rem">Computer Science</p>
+                </div>
+            </div>
+            <div class="detail-row"><span class="label">Designation</span><span class="value"
+                    id="fmodal-desig">Associate Professor</span></div>
+            <div class="detail-row"><span class="label">Email</span><span class="value"
+                    id="fmodal-email">sharma@univ.edu</span></div>
+            <div class="detail-row"><span class="label">Available Slots</span><span class="value green"
+                    id="fmodal-slots">6 slots open</span></div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeModal('modal-faculty')">Close</button>
+                <button class="btn btn-primary" onclick="closeModal('modal-faculty');showSection('book')">Book
+                    Appointment →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" style="
+  position:fixed;bottom:28px;right:28px;z-index:999;
+  background:var(--surface);border:1px solid var(--accent);border-radius:12px;
+  padding:14px 20px;font-size:0.875rem;font-weight:500;
+  box-shadow:var(--shadow);transform:translateY(80px);opacity:0;
+  transition:all 0.3s ease;display:flex;align-items:center;gap:10px;
+">
+        <span id="toast-icon">✅</span>
+        <span id="toast-msg">Action completed!</span>
+    </div>
+
+    <!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+    <script>
+        // ── State ──
+        let currentRole = 'student';
+        let authMode = 'login';
+        let selectedSlot = null;
+        let currentUser = { name: 'Guest', dept: 'N/A', email: 'N/A', role: 'student', phone: 'N/A' };
+
+        const facultyData = [
+            { name: 'Dr. Sharma', dept: 'Computer Science', desig: 'Associate Professor', email: 'sharma@univ.edu', slots: 6, icon: '👨‍🏫' },
+            { name: 'Dr. Nair', dept: 'Mathematics', desig: 'Professor', email: 'nair@univ.edu', slots: 4, icon: '👩‍🏫' },
+            { name: 'Prof. Reddy', dept: 'Electronics', desig: 'Assistant Professor', email: 'reddy@univ.edu', slots: 3, icon: '👨‍💼' },
+            { name: 'Dr. Meera', dept: 'Physics', desig: 'Professor', email: 'meera@univ.edu', slots: 5, icon: '👩‍🔬' },
+            { name: 'Dr. Krishnan', dept: 'Computer Science', desig: 'Professor', email: 'krishnan@univ.edu', slots: 2, icon: '👨‍💻' },
+            { name: 'Prof. Agarwal', dept: 'Mathematics', desig: 'Associate Professor', email: 'agarwal@univ.edu', slots: 7, icon: '👩‍💼' },
+        ];
+
+        // ── Navigation ──
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + id).classList.add('active');
+        }
+
+        function goToLanding() { showPage('landing'); }
+
+        function showAuth(mode) {
+            authMode = mode;
+            showPage('auth');
+            if (mode === 'login') {
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('register-form').style.display = 'none';
+                document.getElementById('auth-title').textContent = 'Welcome back';
+                document.getElementById('auth-sub').textContent = 'Sign in to your account to continue';
+            } else {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('register-form').style.display = 'block';
+                document.getElementById('auth-title').textContent = 'Create account';
+                document.getElementById('auth-sub').textContent = 'Join Unimeet to get started';
+            }
+        }
+
+        function toggleAuth() {
+            authMode = authMode === 'login' ? 'register' : 'login';
+            showAuth(authMode);
+        }
+
+        function setRole(role, el) {
+            currentRole = role;
+            document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            const desigGrp = document.getElementById('desig-group');
+            const phoneGrp = document.getElementById('phone-group');
+            if (desigGrp) { desigGrp.style.display = role === 'faculty' ? 'block' : 'none'; }
+            if (phoneGrp) { phoneGrp.style.display = role === 'student' ? 'block' : 'none'; }
+        }
+
+        async function doLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-pwd').value;
+            
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Login failed');
+                
+                currentUser = { name: data.name, email: data.email, role: data.role, dept: data.department || 'General', phone: data.phone || 'N/A' };
+                currentRole = data.role;
+                localStorage.setItem('token', data.token);
+                setupDashboard(currentRole);
+                showPage('dashboard');
+                showToast('✅', 'Signed in successfully!');
+            } catch (err) {
+                showToast('❌', err.message);
+            }
+        }
+
+        async function doRegister() {
+            const name = document.getElementById('reg-name').value;
+            const dept = document.getElementById('reg-dept').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-pwd').value;
+            const phone = document.getElementById('reg-phone').value;
+            
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, department: dept, email, password, phone, role: currentRole })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Registration failed');
+                
+                currentUser = { name: data.name, email: data.email, role: data.role, dept: data.department || 'General', phone: data.phone || 'N/A' };
+                localStorage.setItem('token', data.token);
+                setupDashboard(currentRole);
+                showPage('dashboard');
+                showToast('🎉', 'Account created successfully!');
+            } catch (err) {
+                showToast('❌', err.message);
+            }
+        }
+
+        function logout() {
+            showPage('landing');
+            showToast('👋', 'Signed out successfully');
+        }
+
+        // ── Dashboard Setup ──
+        const navConfig = {
+            student: [
+                { icon: '🏠', label: 'Overview', section: 'overview' },
+                { icon: '👩‍🏫', label: 'Browse Faculty', section: 'faculty' },
+                { icon: '📅', label: 'Book Appointment', section: 'book' },
+                { icon: '📋', label: 'My Appointments', section: 'history' },
+                { icon: '🔔', label: 'Notifications', section: 'notifications' },
+                { icon: '👤', label: 'Profile', section: 'profile' },
+            ],
+            faculty: [
+                { icon: '🏠', label: 'Dashboard', section: 'faculty-dash' },
+                { icon: '⏰', label: 'Manage Slots', section: 'slots' },
+                { icon: '📋', label: 'Appointments', section: 'history' },
+                { icon: '🔔', label: 'Notifications', section: 'notifications' },
+                { icon: '👤', label: 'Profile', section: 'profile' },
+            ],
+            admin: [
+                { icon: '🏠', label: 'Dashboard', section: 'admin-dash' },
+                { icon: '👥', label: 'Manage Users', section: 'users' },
+                { icon: '📋', label: 'All Appointments', section: 'history' },
+                { icon: '🔔', label: 'Notifications', section: 'notifications' },
+                { icon: '👤', label: 'Profile', section: 'profile' },
+            ]
+        };
+
+        const roleLabels = { student: 'Student Portal', faculty: 'Faculty Portal', admin: 'Admin Panel' };
+        const defaultSection = { student: 'overview', faculty: 'faculty-dash', admin: 'admin-dash' };
+
+        function setupDashboard(role) {
+            currentRole = role;
+            const nav = document.getElementById('sidebar-nav');
+            nav.innerHTML = '';
+            navConfig[role].forEach((item, i) => {
+                const d = document.createElement('div');
+                d.className = 'nav-item' + (i === 0 ? ' active' : '');
+                d.onclick = () => showSection(item.section);
+                d.innerHTML = `<span class="icon">${item.icon}</span> ${item.label}`;
+                nav.appendChild(d);
+            });
+
+            // Role label
+            document.getElementById('sidebar-role-label').textContent = roleLabels[role];
+
+            // User info
+            const u = currentUser;
+            document.getElementById('sb-avatar').textContent = u.name[0];
+            document.getElementById('sb-name').textContent = u.name;
+            document.getElementById('sb-dept').textContent = u.dept;
+            document.getElementById('top-avatar').textContent = u.name[0];
+
+            // Profile section
+            document.getElementById('profile-avatar-big').textContent = u.name[0];
+            document.getElementById('profile-name').textContent = u.name;
+            document.getElementById('profile-info').textContent = u.dept + ' · ' + (role.charAt(0).toUpperCase() + role.slice(1));
+            document.getElementById('pf-name').textContent = u.name;
+            document.getElementById('pf-email').textContent = u.email;
+            document.getElementById('pf-dept').textContent = u.dept;
+            document.getElementById('pf-role').textContent = role.charAt(0).toUpperCase() + role.slice(1);
+            if (document.getElementById('pf-phone')) document.getElementById('pf-phone').textContent = u.phone || 'N/A';
+
+            // Build faculty grid
+            buildFacultyGrid(facultyData);
+
+            // Set default date
+            const today = new Date().toISOString().split('T')[0];
+            const dateEl = document.getElementById('book-date');
+            if (dateEl) dateEl.value = today;
+
+            showSection(defaultSection[role]);
+        }
+
+        function showSection(name) {
+            document.querySelectorAll('.section-hidden, [id^="sec-"]').forEach(s => s.style.display = 'none');
+            const sec = document.getElementById('sec-' + name);
+            if (sec) sec.style.display = 'block';
+
+            // topbar title
+            const labels = {
+                'overview': 'Dashboard', 'faculty': 'Browse Faculty', 'book': 'Book Appointment',
+                'history': 'Appointment History', 'notifications': 'Notifications', 'profile': 'My Profile',
+                'faculty-dash': 'Faculty Dashboard', 'slots': 'Manage Slots',
+                'admin-dash': 'Admin Dashboard', 'users': 'Manage Users'
+            };
+            document.getElementById('topbar-title').textContent = labels[name] || 'Dashboard';
+
+            // Update active nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.onclick && item.onclick.toString().includes(name)) item.classList.add('active');
+            });
+
+            // Mark notifs read
+            if (name === 'notifications') {
+                document.getElementById('notif-badge').style.display = 'none';
+            }
+        }
+
+        // ── Faculty grid ──
+        function buildFacultyGrid(data) {
+            const grid = document.getElementById('faculty-grid');
+            if (!grid) return;
+            grid.innerHTML = data.map(f => `
+    <div class="faculty-card" onclick="openFacultyModal('${f.name}','${f.dept}','${f.desig}','${f.email}','${f.slots} slots open')">
+      <div class="fc-avatar">${f.icon}</div>
+      <h3>${f.name}</h3>
+      <div class="dept">${f.dept}</div>
+      <div class="desig">${f.desig}</div>
+      <div class="slots-available">📅 ${f.slots} slots available</div>
+    </div>
+  `).join('');
+        }
+
+        function filterFaculty() {
+            const q = document.getElementById('faculty-search').value.toLowerCase();
+            const dept = document.getElementById('dept-filter').value;
+            const filtered = facultyData.filter(f =>
+                f.name.toLowerCase().includes(q) &&
+                (dept === '' || f.dept === dept)
+            );
+            buildFacultyGrid(filtered);
+        }
+
+        // ── Slot selection ──
+        function selectSlot(el) {
+            document.querySelectorAll('.slot-card').forEach(s => s.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedSlot = el.querySelector('.slot-time').textContent;
+        }
+
+        // ── Booking ──
+        function submitBooking() {
+            if (!selectedSlot) { showToast('⚠️', 'Please select a time slot'); return; }
+            const faculty = document.getElementById('book-faculty').value.split(' — ')[0];
+            const purpose = document.getElementById('book-purpose').value;
+            document.getElementById('success-faculty').textContent = faculty;
+            document.getElementById('success-slot').textContent = selectedSlot;
+            document.getElementById('success-purpose').textContent = purpose;
+            openModal('modal-success');
+        }
+
+        // ── Faculty/Admin actions ──
+        function approveReject(name, approve) {
+            const msg = approve ? `Approved appointment for ${name}` : `Rejected appointment from ${name}`;
+            const icon = approve ? '✅' : '✗';
+            showToast(icon, msg);
+        }
+
+        // ── Modals ──
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        function viewAppt(id) { openModal('modal-appt'); }
+        function openFacultyModal(name, dept, desig, email, slots) {
+            document.getElementById('fmodal-name').textContent = name;
+            document.getElementById('fmodal-dept').textContent = dept;
+            document.getElementById('fmodal-desig').textContent = desig;
+            document.getElementById('fmodal-email').textContent = email;
+            document.getElementById('fmodal-slots').textContent = slots;
+            openModal('modal-faculty');
+        }
+        function openAddSlot() { openModal('modal-slot'); }
+        function addSlot() {
+            const date = document.getElementById('slot-date').value;
+            const start = document.getElementById('slot-start').value;
+            const end = document.getElementById('slot-end').value;
+            if (!date || !start || !end) { showToast('⚠️', 'Please fill all slot fields'); return; }
+            const grid = document.getElementById('slots-list');
+            const card = document.createElement('div');
+            card.className = 'slot-manage-card';
+            card.innerHTML = `
+    <div class="smc-time">${formatTime(start)} – ${formatTime(end)}</div>
+    <div class="smc-date">${new Date(date).toDateString()}</div>
+    <div style="margin-bottom:12px"><span class="badge badge-approved">Available</span></div>
+    <div class="smc-actions"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteSlot(this)">Delete</button></div>
+  `;
+            grid.appendChild(card);
+            closeModal('modal-slot');
+            showToast('✅', 'New slot added successfully!');
+        }
+        function deleteSlot(btn) {
+            btn.closest('.slot-manage-card').remove();
+            showToast('🗑️', 'Slot removed');
+        }
+        function formatTime(t) {
+            const [h, m] = t.split(':');
+            const hr = parseInt(h); const ampm = hr >= 12 ? 'PM' : 'AM';
+            return `${hr % 12 || 12}:${m} ${ampm}`;
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+        });
+
+        // ── Toast ──
+        function showToast(icon, msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-icon').textContent = icon;
+            document.getElementById('toast-msg').textContent = msg;
+            t.style.transform = 'translateY(0)';
+            t.style.opacity = '1';
+            setTimeout(() => { t.style.transform = 'translateY(80px)'; t.style.opacity = '0'; }, 3000);
+        }
+    </script>
+</body>
+
+</html>
