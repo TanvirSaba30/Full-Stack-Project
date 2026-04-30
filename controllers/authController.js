@@ -1,51 +1,66 @@
-const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
+const User = require('../../models/User');
+const generateToken = require('../../utils/generateToken');
 
-// Temporary in-memory storage for testing since MongoDB IP is not whitelisted
-let users = [];
-
+// Register user (uses MongoDB + bcrypt via User model)
 const registerUser = async (req, res) => {
-  const { name, email, password, role, department, phone } = req.body;
-  const userExists = users.find(u => u.email === email);
-  if (userExists) return res.status(400).json({ message: 'User already exists' });
+  try {
+    const { name, email, password, role, department, phone } = req.body;
+    const userExists = await User.findOne({ email });
+    if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-  const newUser = {
-    _id: Date.now().toString(),
-    name,
-    email,
-    password, // Stored in plain text for testing only
-    role,
-    department,
-    phone
-  };
-  users.push(newUser);
+    const user = await User.create({ name, email, password, role, department, phone });
 
-  res.status(201).json({
-    _id: newUser._id,
-    name: newUser.name,
-    email: newUser.email,
-    role: newUser.role,
-    department: newUser.department,
-    token: generateToken(newUser._id)
-  });
-};
-
-const authUser = async (req, res) => {
-  const { email, password } = req.body;
-  const user = users.find(u => u.email === email);
-  
-  if (user && user.password === password) {
-    res.json({
+    res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       department: user.department,
+      phone: user.phone,
       token: generateToken(user._id)
     });
-  } else {
-    res.status(401).json({ message: 'Invalid email or password' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = { registerUser, authUser };
+// Login user
+const authUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    if (user && (await user.matchPassword(password))) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        department: user.department,
+        phone: user.phone,
+        token: generateToken(user._id)
+      });
+    } else {
+      res.status(401).json({ message: 'Invalid email or password' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get current user from token
+const getMe = async (req, res) => {
+  res.json(req.user);
+};
+
+// Get all faculty members (for browse faculty)
+const getFacultyList = async (req, res) => {
+  try {
+    const faculty = await User.find({ role: 'faculty' }).select('-password');
+    res.json(faculty);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { registerUser, authUser, getMe, getFacultyList };

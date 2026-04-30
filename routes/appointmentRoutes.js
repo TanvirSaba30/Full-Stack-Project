@@ -1,14 +1,11 @@
-// server/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
+const protect = require('../middleware/authMiddleware');
+const authorizeRoles = require('../middleware/roleMiddleware');
+const { bookAppointment, getMyAppointments, updateAppointmentStatus } = require('../controllers/appointmentController');
 
-// Just a temporary route so it doesn't crash
-router.post('/register', (req, res) => {
-    res.send('Register route working');
-});
-
-router.post('/login', (req, res) => {
-    res.send('Login route working');
-});
+router.post('/', protect, bookAppointment);
+router.get('/', protect, getMyAppointments);
+router.put('/:id/status', protect, authorizeRoles('faculty'), updateAppointmentStatus);
 
 module.exports = router;

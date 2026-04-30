@@ -8,6 +8,9 @@ const userSchema = mongoose.Schema({
   role: { type: String, enum: ['student', 'faculty', 'admin'], required: true },
   department: String,
   phone: String,
+  designation: String,
+  subject: String,
+  maxAppointments: { type: Number, default: 10 },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

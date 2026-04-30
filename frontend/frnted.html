@@ -2004,12 +2004,11 @@
                 <!-- ── PROFILE ── -->
                 <div id="sec-profile" class="section-hidden">
                     <div class="profile-header">
-                        <div class="profile-avatar" id="profile-avatar-big">R</div>
+                        <div class="profile-avatar" id="profile-avatar-big"></div>
                         <div>
-                            <h2 id="profile-name">Ravi Kumar</h2>
-                            <p id="profile-info">Computer Science · Student</p>
-                            <p style="color:var(--muted);font-size:0.82rem;margin-top:4px" id="profile-email">
-                                ravi@student.edu</p>
+                            <h2 id="profile-name"></h2>
+                            <p id="profile-info"></p>
+                            <p style="color:var(--muted);font-size:0.82rem;margin-top:4px" id="profile-email"></p>
                         </div>
                         <button class="btn btn-outline btn-sm" style="margin-left:auto">Edit Profile</button>
                     </div>
@@ -2017,9 +2016,9 @@
                         <div class="card">
                             <div class="card-title">Personal Information</div>
                             <div class="detail-row"><span class="label">Full Name</span><span class="value"
-                                    id="pf-name">Ravi Kumar</span></div>
+                                    id="pf-name"></span></div>
                             <div class="detail-row"><span class="label">Email</span><span class="value"
-                                    id="pf-email">ravi@student.edu</span></div>
+                                    id="pf-email"></span></div>
                             <div class="detail-row"><span class="label">Department</span><span class="value"
                                     id="pf-dept">Computer Science</span></div>
                             <div class="detail-row"><span class="label">Role</span><span class="value"
@@ -2219,16 +2218,16 @@
         async function doLogin() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-pwd').value;
-            
+
             try {
-                const res = await fetch('/api/auth/login', {
+                const res = await fetch('http://localhost:5001/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message || 'Login failed');
-                
+
                 currentUser = { name: data.name, email: data.email, role: data.role, dept: data.department || 'General', phone: data.phone || 'N/A' };
                 currentRole = data.role;
                 localStorage.setItem('token', data.token);
@@ -2246,16 +2245,16 @@
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-pwd').value;
             const phone = document.getElementById('reg-phone').value;
-            
+
             try {
-                const res = await fetch('/api/auth/register', {
+                const res = await fetch('http://localhost:5001/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, department: dept, email, password, phone, role: currentRole })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message || 'Registration failed');
-                
+
                 currentUser = { name: data.name, email: data.email, role: data.role, dept: data.department || 'General', phone: data.phone || 'N/A' };
                 localStorage.setItem('token', data.token);
                 setupDashboard(currentRole);
@@ -2328,6 +2327,7 @@
             document.getElementById('profile-info').textContent = u.dept + ' · ' + (role.charAt(0).toUpperCase() + role.slice(1));
             document.getElementById('pf-name').textContent = u.name;
             document.getElementById('pf-email').textContent = u.email;
+            document.getElementById('profile-email').textContent = u.email;
             document.getElementById('pf-dept').textContent = u.dept;
             document.getElementById('pf-role').textContent = role.charAt(0).toUpperCase() + role.slice(1);
             if (document.getElementById('pf-phone')) document.getElementById('pf-phone').textContent = u.phone || 'N/A';
